@@ -47,20 +47,26 @@ catch (PDOexception $e) { // handle exception
 
 function add_to_cart($number, $quantity)
 {
+	// inherit PDO variables from outside of function
 	global $pdo;
 	global $pdoTwo;
+	// declare variables for INSERT statement
 	$getNum = $number;
 	$getQuant = $quantity;
 	$getDesc = "";
 	$getPrice = 0;
 	$getPic = "";
+	// Query to pull all data from 'parts' table and fetch all, uses $pdoTwo (legacy database)
 	$pdoQuery = $pdoTwo->prepare("SELECT * FROM parts WHERE number = '$getNum'");
 	$pdoQuery->execute();
-	$result = $pdoQuery->fetch(PDO::FETCH_ASSOC);
+	$result = $pdoQuery->fetchAll(PDO::FETCH_ASSOC);
+	// for each row "should only ever be one row but we'll do a loop anyway cause fuck it
 	foreach($result as $row)
 		{
+		// for each element in row
 		foreach($row as $head=>$info)
 			{
+			// if statements will pull data out of PDO and store locally
 			if($head == 'number')
 				{
 				$getNum = $info;
@@ -79,6 +85,7 @@ function add_to_cart($number, $quantity)
 				}
 			}
 		}
+	// PDO query to insert local variables into cart, uses $pdo (new database)
 	$pdoQuery = $pdo->prepare("INSERT INTO cart (number, quantity, description, price, pictureURL) VALUES ('$getNum', '$getQuant', '$getDesc', '$getPrice', '$getPic')");
 	$pdoQuery->execute();
 	}
